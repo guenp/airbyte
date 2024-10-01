@@ -91,16 +91,18 @@ class S3StorageOperationsIntegrationTest {
         objectPrefix: String,
         numOfRecords: Int,
         generationId: Long
-    ) {
+    ): Set<String> {
         log.info { "Uploading $numOfRecords test objects" }
+        val insertedFiles: MutableSet<String>  = mutableSetOf()
         for (i in 1..numOfRecords) {
-            s3StorageOperations.uploadRecordsToBucket(
+            insertedFiles.add(s3StorageOperations.uploadRecordsToBucket(
                 createStringBuffer("DummyStringToWrite"),
                 namespace,
                 objectPrefix,
                 generationId
-            )
+            ))
         }
+        return insertedFiles
     }
 
     @Test
@@ -187,6 +189,7 @@ class S3StorageOperationsIntegrationTest {
                 outputFormat
             )
         var expectedNumberOfObjects = 0
+        val objectsByGenId: MutableMap<Int, Set<String>> = mutableMapOf()
         if (numberOfGens != 0) {
             for (i in 1..numberOfGens) {
                 val numberOfObjects =
@@ -195,7 +198,7 @@ class S3StorageOperationsIntegrationTest {
                         else -> randomNumber
                     }
                 expectedNumberOfObjects += numberOfObjects
-                uploadTestRecords(namespace, fullObjectPath, numberOfObjects, i.toLong())
+                objectsByGenId[i] = uploadTestRecords(namespace, fullObjectPath, numberOfObjects, i.toLong())
             }
         }
 
@@ -204,7 +207,7 @@ class S3StorageOperationsIntegrationTest {
         // This is used to assert non-existent case where currentGen gets decreased from highest Gen
         if (currentGen > numberOfGens) {
             val currentGenObjectSize = random.nextInt(5)
-            uploadTestRecords(namespace, fullObjectPath, currentGenObjectSize, currentGen.toLong())
+            objectsByGenId[currentGen] = uploadTestRecords(namespace, fullObjectPath, currentGenObjectSize, currentGen.toLong())
         }
 
         val existingObjects =
@@ -215,7 +218,7 @@ class S3StorageOperationsIntegrationTest {
                 outputFormat,
                 currentGen.toLong()
             )
-        assertEquals(expectedNumberOfObjects, existingObjects.size)
+        assertEquals(expectedNumberOfObjects, existingObjects.size, "currentGen = $currentGen. Expected $expectedNumberOfObjects (${objectsByGenId}), got $existingObjects")
     }
 
     private fun createStringBuffer(strData: String): SerializableBuffer {
