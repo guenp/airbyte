@@ -20,7 +20,6 @@ class S3V2SpecificationExtension : DestinationSpecificationExtension {
         listOf(
             DestinationSyncMode.OVERWRITE,
             DestinationSyncMode.APPEND,
-            DestinationSyncMode.APPEND_DEDUP,
         )
     override val supportsIncremental = true
 }
