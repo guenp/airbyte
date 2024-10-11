@@ -1,0 +1,34 @@
+data:
+  connectorSubtype: file
+  connectorType: destination
+  definitionId: d6116991-e809-4c7c-ae09-c64712df5b66
+  dockerImageTag: 0.0.1
+  dockerRepository: airbyte/destination-s3-v2
+  githubIssueLabel: destination-s3-v2
+  icon: s3.svg
+  license: ELv2
+  name: S3 V2
+  registryOverrides:
+    cloud:
+      enabled: true
+    oss:
+      enabled: false
+  releaseStage: alpha
+  resourceRequirements:
+    jobSpecific:
+      - jobType: sync
+        resourceRequirements:
+          memory_limit: 2Gi
+          memory_request: 2Gi
+  documentationUrl: https://docs.airbyte.com/integrations/destinations/s3-v2
+  tags:
+    - language:java
+  ab_internal:
+    sl: 300
+    ql: 300
+  supportLevel: community
+  supportsRefreshes: true
+  connectorTestSuitesOptions:
+    - suite: unitTests
+    - suite: integrationTests
+metadataSpecVersion: "1.0"
