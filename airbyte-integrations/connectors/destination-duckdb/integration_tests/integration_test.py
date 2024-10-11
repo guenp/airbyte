@@ -104,7 +104,17 @@ def test_large_table_name() -> str:
 
 @pytest.fixture
 def table_schema() -> str:
-    schema = {"type": "object", "properties": {"column1": {"type": ["null", "string"]}}}
+    # schema = {"type": "object", "properties": {"column1": {"type": ["null", "string"]}}}
+    schema = {"type": "object", "properties": {
+          "id": "number",
+          "first_name": "string",
+          "age": "number",
+          "address": {"type": "object": "properties": {
+            "city": "string",
+            "zip": "string"
+          }}
+        }
+    }
     return schema
 
 
@@ -184,6 +194,18 @@ def _state(data: Dict[str, Any]) -> AirbyteMessage:
     return AirbyteMessage(type=Type.STATE, state=AirbyteStateMessage(data=data))
 
 
+@pytest.fixture()
+def json_schema():
+    return {
+          "id": "number",
+          "first_name": "string",
+          "age": "number",
+          "address": {
+            "city": "string",
+            "zip": "string"
+          }
+        }
+
 def test_write(
     config: Dict[str, str],
     request,
@@ -213,7 +235,7 @@ def test_write(
     )
     with con:
         cursor = con.execute(
-            "SELECT _airbyte_ab_id, _airbyte_emitted_at, _airbyte_data "
+            "SELECT _airbyte_ab_id, _airbyte_emitted_at, id, first_name, age, address"
             f"FROM {test_schema_name}._airbyte_raw_{test_table_name} ORDER BY _airbyte_data"
         )
         result = cursor.fetchall()
